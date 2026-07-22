@@ -1,5 +1,6 @@
 echo -e "\e[33mInstalling Nginx Server\e[0m"
 dnf install nginx -y &>>/tmp/roboshop.log
+
 echo -e "\e[33mRemoving old app content\e[0m"
 rm -rf /usr/share/nginx/html/*  &>>/tmp/roboshop.log
 
