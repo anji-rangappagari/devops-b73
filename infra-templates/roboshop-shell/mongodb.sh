@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo -e "\e[33mCopying the MongoDB repo file\e[0m"
 cp mongodb.repo /etc/yum.repos.d/mongodb.repo &>>/tmp/roboshop.log
 
