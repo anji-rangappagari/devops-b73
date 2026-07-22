@@ -9,4 +9,19 @@ echo "Hello World"
 
 #\e[COLm - To enable color, where COL is the color code]
 #\e[0m - To reset the color back to default
+echo -e "\e[30mHello \nWorld\e[0m"
+echo -e "\e[31mHello \nWorld\e[0m"
 echo -e "\e[32mHello \nWorld\e[0m"
+echo -e "\e[33mHello \nWorld\e[0m"
+echo -e "\e[34mHello \nWorld\e[0m"
+echo -e "\e[35mHello \nWorld\e[0m"
+echo -e "\e[36mHello \nWorld\e[0m"
+
+# COL stands for color and possible color codes are as below
+# 30 - Black
+# 31 - Red
+# 32 - Green
+# 33 - Yellow
+# 34 - Blue
+# 35 - Magenta
+# 36 - Cyan     
