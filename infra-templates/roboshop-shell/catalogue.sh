@@ -15,6 +15,6 @@ systemctl daemon-reload
 systemctl enable catalogue 
 systemctl start catalogue
 
-cp mongodb.repo /etc/yum.repos.d/mongodb.repo
+cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/mongodb.repo /etc/yum.repos.d/mongodb.repo
 dnf install mongodb-org -y
 mongosh --host mongodb-dev.oneseven.space </app/db/master-data.js
