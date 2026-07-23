@@ -16,18 +16,16 @@ mkdir -p /app &>>/tmp/roboshop.log
 
 echo -e "\e[33mDownloading the application content\e[0m"
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip  $>>/tmp/roboshop.log
+cd /app 
 
 echo -e "\e[33mExtracting the application content\e[0m"
-cd /app 
 unzip /tmp/catalogue.zip $>>/tmp/roboshop.log
-
+cd /app
 
 echo -e "\e[33mInstalling the application dependencies\e[0m"
-cd /app
 npm install &>>/tmp/roboshop.log
 
-cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/
-catalogue.service /etc/systemd/system/catalogue.service
+cp catalogue.service /etc/systemd/system/catalogue.service  &>>/tmp/roboshop.log
 
 echo -e "\e[33mStarting the catalogue service\e[0m"
 systemctl daemon-reload  &>>/tmp/roboshop.log
@@ -35,11 +33,11 @@ systemctl enable catalogue &>>/tmp/roboshop.log
 systemctl start catalogue  &>>/tmp/roboshop.log
 
 echo -e "\e[33mCopying the MongoDB repo file\e[0m"
-cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/mogodb.repo /etc/yum.repos.d/mongodb.repo &>>/tmp/roboshop.log 
+cp mogodb.repo /etc/yum.repos.d/mongodb.repo &>>/tmp/roboshop.log 
 
 echo -e "\e[33mInstalling MongoDB\e[0m"
 dnf install mongodb-org -y &>>/tmp/roboshop.log"
 
-mongosh --host mongodb-dev.oneseven.space </app/db/master-data.js
+mongosh --host mongodb-dev.oneseven.space </app/db/master-data.js &>>/tmp/roboshop.log
 
 
