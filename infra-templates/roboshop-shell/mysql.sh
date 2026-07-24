@@ -14,3 +14,5 @@ systemctl start mysqld &>>/tmp/roboshop.log
 
 echo -e "\e[33m]Update default password\e[0m"
 mysql_secure_installation --set-root-pass RoboShop@1 &>>/tmp/roboshop.log
+echo -e "\e[33mCheck the password is working?]\e[0m"
+mysql -uroot -pRoboShop@1 &>>/tmp/roboshop.log
