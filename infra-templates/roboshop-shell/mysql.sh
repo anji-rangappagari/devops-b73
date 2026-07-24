@@ -1,3 +1,9 @@
+echo -e "\e[33mDisabling MySQL Module\e[0m"
+dnf module disable mysql -y &>>/tmp/roboshop.log
+
+echo -e "\e[33mCopying MySQL Repository Configuration\e[0m"
+cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/mysql.repo /etc/yum.repos.d/mysql.repo &>>/tmp/roboshop.log
+
 echo -e "\e[33mInstalling MySQL\e[0m"
 dnf install mysql-server -y  &>>/tmp/roboshop.log
 
