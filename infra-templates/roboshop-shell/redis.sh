@@ -10,6 +10,7 @@ dnf install redis -y  &>>/tmp/roboshop.log
 
 echo -e "\e[33mConfiguring Redis\e[0m"
 sed -i 's|127.0.0.1|0.0.0.0|' /etc/redis/redis.conf &>>/tmp/roboshop.log
+sudo sed -i 's/protected-mode yes/protected-mode no/' /etc/redis/redis.conf &>>/tmp/roboshop.log
 
 echo -e "\e[33mStarting Redis Service\e[0m"
 systemctl enable redis &>>/tmp/roboshop.log
