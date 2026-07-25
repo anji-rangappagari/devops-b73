@@ -21,4 +21,4 @@ echo -e "\e[33mSetting up roboshop password\e[0m"
 mysql_secure_installation --set-root-pass RoboShop@1 &>>/tmp/roboshop.log
 
 echo -e "\e[33mChecking if the password is working?\e[0m"
-mysql -uroot -pRoboShop@1 -e "SELECT VERSION();"
+mysql -uroot -pRoboShop@1
