@@ -1,14 +1,16 @@
+set -e
+component=rabbitmq
+source common.sh
+echo -e "${colour}Installing Erlang Repository${nocolour}"
+curl -s https://packagecloud.io/install/repositories/${component}/erlang/script.rpm.sh | bash  &>>${log_file}
 
-echo -e "\e[33mInstalling Erlang Repository\e[0m"
-curl -s https://packagecloud.io/install/repositories/rabbitmq/erlang/script.rpm.sh | bash  &>>/tmp/roboshop.log
+echo -e "${colour}Installing RabbitMQ Repository${nocolour}"
+curl -s https://packagecloud.io/install/repositories/${component}/${component}-server/script.rpm.sh | bash &>>${log_file}
 
-echo -e "\e[33mInstalling RabbitMQ Repository\e[0m"
-curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | bash &>>/tmp/roboshop.log
-
-echo -e "\e[33mInstalling RabbitMQ\e[0m"
-dnf install rabbitmq-server -y  &>>/tmp/roboshop.log
+echo -e "${colour}Installing RabbitMQ${nocolour}"
+dnf install ${component}-server -y  &>>${log_file}
 
 
-echo -e "\e[33mStarting RabbitMQ Service\e[0m"
-systemctl enable rabbitmq-server &>>/tmp/roboshop.log
-systemctl start rabbitmq-server &>>/tmp/roboshop.log
+echo -e "${colour}Starting RabbitMQ Service${nocolour}"
+systemctl enable ${component}-server &>>${log_file}
+systemctl start ${component}-server &>>${log_file}

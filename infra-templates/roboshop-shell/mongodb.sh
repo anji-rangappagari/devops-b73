@@ -1,16 +1,18 @@
 set -e
+component=mongodb
+source common.sh
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
-echo -e "\e[33mCopying the MongoDB repo file\e[0m"
-cp "${SCRIPT_DIR}/mongodb.repo" /etc/yum.repos.d/mongodb.repo &>>/tmp/roboshop.log
+echo -e "${colour}Copying the ${component} repo file${nocolour}"
+cp "${SCRIPT_DIR}/${component}.repo" /etc/yum.repos.d/${component}.repo &>>${log_file}
 
-echo -e "\e[33mInstalling MongoDB\e[0m"
-dnf install mongodb-org -y &>>/tmp/roboshop.log
+echo -e "${colour}Installing ${component}${nocolour}"
+dnf install ${component}-org -y &>>${log_file}
 
-echo -e "\e[33mModifying the MongoDB configuration file to listen on all interfaces\e[0m"
-sed -i -e 's|127.0.0.1|0.0.0.0|' /etc/mongod.conf &>>/tmp/roboshop.log
+echo -e "${colour}Modifying the ${component} configuration file to listen on all interfaces${nocolour}"
+sed -i -e 's|127.0.0.1|0.0.0.0|' /etc/${component}.conf &>>${log_file}
 
-echo -e "\e[33mStarting & Enabling MongoDB Service\e[0m"
-systemctl enable mongod &>>/tmp/roboshop.log
-systemctl start mongod &>>/tmp/roboshop.log
+echo -e "${colour}Starting & Enabling ${component} Service${nocolour}"
+systemctl enable ${component} &>>${log_file}
+systemctl start ${component} &>>${log_file}

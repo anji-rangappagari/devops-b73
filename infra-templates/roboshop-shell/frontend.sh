@@ -1,25 +1,27 @@
 set -e
+component=frontend
+source common.sh
 
-echo -e "\e[33mInstalling Nginx Server\e[0m"
-dnf module disable nginx -y &>>/tmp/roboshop.log
-dnf module enable nginx:1.24 -y &>>/tmp/roboshop.log
-dnf install nginx unzip -y &>>/tmp/roboshop.log
+echo -e "${colour}Installing Nginx Server${nocolour}"
+dnf module disable nginx -y &>>${file_log}
+dnf module enable nginx:1.24 -y &>>${file_log}
+dnf install nginx unzip -y &>>${file_log}
 
-echo -e "\e[33mStarting Nginx service\e[0m"
-systemctl enable nginx &>>/tmp/roboshop.log
-systemctl start nginx &>>/tmp/roboshop.log
+echo -e "${colour}Starting Nginx service${nocolour}"
+systemctl enable nginx &>>${file_log}
+systemctl start nginx &>>${file_log}
 
-echo -e "\e[33mRemoving old app content\e[0m"
+echo -e "${colour}Removing old app content${nocolour}"
 rm -rf /usr/share/nginx/html/*
 
-echo -e "\e[33mDownloading the frontend content\e[0m"
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>/tmp/roboshop.log
+echo -e "${colour}Downloading the ${component} content${nocolour}"
+curl -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/${component}-v3.zip &>>${file_log}
 
-echo -e "\e[33mExtracting the frontend content\e[0m"
+echo -e "${colour}Extracting the ${component} content${nocolour}"
 cd /usr/share/nginx/html
-unzip -o /tmp/frontend.zip &>>/tmp/roboshop.log
+unzip -o /tmp/${component}.zip &>>${file_log}
 
-echo -e "\e[33mConfiguring Nginx reverse proxy\e[0m"
+echo -e "${colour}Configuring Nginx reverse proxy${nocolour}"
 # Avoid empty-glob / duplicate default-server failures on RHEL nginx
 mkdir -p /etc/nginx/default.d /etc/nginx/conf.d
 rm -f /etc/nginx/conf.d/default.conf
@@ -90,5 +92,5 @@ http {
 EOF
 
 echo -e "\e[33mRestarting Nginx service\e[0m"
-nginx -t &>>/tmp/roboshop.log
-systemctl restart nginx &>>/tmp/roboshop.log
+nginx -t &>>${file_log}
+systemctl restart nginx &>>${file_log}

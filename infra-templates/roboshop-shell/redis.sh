@@ -1,17 +1,19 @@
+component=redis
+source common.sh
 
-echo -e "\e[33mDisabling Redis Module\e[0m"
-dnf module disable redis -y &>>/tmp/roboshop.log
+echo -e "${colour}Disabling Redis Module${nocolour}"
+dnf module disable ${component} -y &>>${log_file}
 
-echo -e "\e[33mEnabling Redis Module\e[0m"
-dnf module enable redis:7 -y &>>/tmp/roboshop.log
+echo -e "${colour}Enabling Redis Module${nocolour}"
+dnf module enable ${component}:7 -y &>>${log_file}
 
-echo -e "\e[33mInstalling Redis\e[0m"
-dnf install redis -y  &>>/tmp/roboshop.log
+echo -e "${colour}Installing Redis${nocolour}"
+dnf install ${component} -y  &>>${log_file}
 
-echo -e "\e[33mConfiguring Redis\e[0m"
-sed -i 's|127.0.0.1|0.0.0.0|' /etc/redis/redis.conf &>>/tmp/roboshop.log
-sudo sed -i 's/protected-mode yes/protected-mode no/' /etc/redis/redis.conf &>>/tmp/roboshop.log
+echo -e "${colour}Configuring Redis${nocolour}"
+sed -i 's|127.0.0.1|0.0.0.0|' /etc/${component}/${component}.conf &>>${log_file}
+sudo sed -i 's/protected-mode yes/protected-mode no/' /etc/${component}/${component}.conf &>>${log_file}
 
-echo -e "\e[33mStarting Redis Service\e[0m"
-systemctl enable redis &>>/tmp/roboshop.log
-systemctl start redis &>>/tmp/roboshop.log
+echo -e "${colour}Starting Redis Service${nocolour}"
+systemctl enable ${component} &>>${log_file}
+systemctl start ${component} &>>${log_file}
