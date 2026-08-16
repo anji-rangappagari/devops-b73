@@ -2,7 +2,11 @@ colour="\e[33m"
 nocolour="\e[0m"
 log_file="/tmp/roboshop.log"
 app_path="/app"
-
+user_id=$(id -u)
+if [ $user_id -ne 0 ]; then
+    echo -e "${colour}You should run this script as root user or with sudo privileges${nocolour}"
+    exit 1
+fi
 status_check() {
     if [ $1 -eq 0 ]; then
         echo SUCCESS
@@ -15,7 +19,9 @@ status_check() {
 
 app_presetup() {
     echo -e "${colour}Creating roboshop User${nocolour}"
-
+    cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/${component}.service /etc/systemd/system/${component}.service &>>${log_file}
+    status_check $?
+    sed -i "s/roboshop_user_password/$roboshop_user_password/" /home/ec2-user/devops-b73/infra-templates/roboshop-shell/${component}.service
     if [ $? -eq 1 ]; then
         id roboshop &>>${log_file} || useradd roboshop &>>${log_file}
     fi
@@ -35,7 +41,6 @@ app_presetup() {
     cd ${app_path}
     unzip /tmp/${component}.zip &>> ${log_file}
     status_check $?
-
 }
 
 systemd_setup() {
@@ -182,6 +187,6 @@ python() {
     cd ${app_path}
     pip3 install -r requirements.txt &>>${log_file}
     status_check $?
-    sed -i "s/roboshop_user_password/$1/" /home/ec2-user/devops-b73/infra-templates/roboshop-shell/${component}.service
+    
     systemd_setup
 }
