@@ -105,3 +105,16 @@ mavan() {
     systemctl enable ${component} &>>${log_file}
     systemctl start ${component} &>>${log_file}
 }
+
+python() {
+    echo -e "${colour}Installing Python 3${nocolour}"
+    dnf install python3 gcc python3-devel unzip -y &>>${log_file}
+
+    app_presetup
+
+    echo -e "${colour}Installing Python Dependencies${nocolour}"
+    cd ${app_path}
+    pip3 install -r requirements.txt &>>${log_file}
+
+    systemd_setup
+}
