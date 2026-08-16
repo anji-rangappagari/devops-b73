@@ -1,12 +1,13 @@
-#!/bin/bash
+set -e
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 echo -e "\e[33mCopying the MongoDB repo file\e[0m"
-cp mongodb.repo /etc/yum.repos.d/mongodb.repo &>>/tmp/roboshop.log
+cp "${SCRIPT_DIR}/mongodb.repo" /etc/yum.repos.d/mongodb.repo &>>/tmp/roboshop.log
 
 echo -e "\e[33mInstalling MongoDB\e[0m"
 dnf install mongodb-org -y &>>/tmp/roboshop.log
 
-## Modify the MongoDB configuration file to listen on all interfaces
 echo -e "\e[33mModifying the MongoDB configuration file to listen on all interfaces\e[0m"
 sed -i -e 's|127.0.0.1|0.0.0.0|' /etc/mongod.conf &>>/tmp/roboshop.log
 

@@ -19,3 +19,11 @@ output "sample1" {
 output "sample-ext"{
     value = "${var.sample} - ${var.sample1}"
 }
+
+variable "env" {
+    default = "dev"
+}
+
+output "env" {
+    value = var.env
+}
