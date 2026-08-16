@@ -1,7 +1,7 @@
-colour="${colour}"
-nocolour="${nocolour}"
-log_file="${log_file}"
-app_path="${app_path}"
+colour="\e[33m"
+nocolour="\e[0m"
+log_file="/tmp/roboshop.log"
+app_path="/app"
 
 app_presetup() {
     echo -e "${colour}Creating roboshop User${nocolour}"
