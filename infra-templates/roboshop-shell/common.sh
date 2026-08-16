@@ -182,6 +182,6 @@ python() {
     cd ${app_path}
     pip3 install -r requirements.txt &>>${log_file}
     status_check $?
-
+    sed -i "s/roboshop_user_password/$1/" /home/ec2-user/devops-b73/infra-templates/roboshop-shell/${component}.service
     systemd_setup
 }

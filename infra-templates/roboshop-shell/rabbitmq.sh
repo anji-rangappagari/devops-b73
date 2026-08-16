@@ -14,3 +14,8 @@ dnf install ${component}-server -y  &>>${log_file}
 echo -e "${colour}Starting RabbitMQ Service${nocolour}"
 systemctl enable ${component}-server &>>${log_file}
 systemctl start ${component}-server &>>${log_file}
+
+echo -e "${colour}Creating Application User${nocolour}"
+rabbitmqctl add_user roboshop $1 &>>${log_file}
+rabbitmqctl set_user_tags roboshop administrator &>>${log_file}
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>>${log_file}

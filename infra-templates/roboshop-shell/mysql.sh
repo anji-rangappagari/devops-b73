@@ -24,12 +24,12 @@ done
 
 echo -e "${colour}Setting MySQL root password${nocolour}"
 # RHEL MySQL 8: set password via SQL (lab flag --set-root-pass is not always available)
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'RoboShop@1'; FLUSH PRIVILEGES;" &>>${log_file}
-mysql_secure_installation --set-root-pass 'RoboShop@1' &>>${log_file} || true
+mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY $1; FLUSH PRIVILEGES;" &>>${log_file}
+mysql_secure_installation --set-root-pass $1 &>>${log_file} || true
 
 echo -e "${colour}Allowing remote root access for RoboShop${nocolour}"
-mysql -uroot -p'RoboShop@1' -e "DROP USER IF EXISTS 'root'@'%';" &>>${log_file} || true
-mysql -uroot -p'RoboShop@1' -e "CREATE USER 'root'@'%' IDENTIFIED BY 'RoboShop@1'; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;" &>>${log_file}
+mysql -uroot -p $1 -e "DROP USER IF EXISTS 'root'@'%';" &>>${log_file} || true
+mysql -uroot -p $1 -e "CREATE USER 'root'@'%' IDENTIFIED BY 'RoboShop@1'; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;" &>>${log_file}
 
 echo -e "${colour}Restarting MySQL to apply bind-address${nocolour}"
 systemctl restart mysqld &>>${log_file}
