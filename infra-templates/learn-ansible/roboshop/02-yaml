@@ -1,0 +1,10 @@
+- name: Demo on load another file
+  hosts: all
+  tasks:
+    - name: Hellow World"
+      ansible.builtin.debug:
+        msg: Hello World
+
+    - name: Dynamic execution of tasks from another file
+      ansible.builtin.include_tasks:
+        file: universe.yaml
