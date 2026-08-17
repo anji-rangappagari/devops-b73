@@ -1,36 +1,45 @@
-- name : setup frontend
+- name: setup frontend
   hosts: all
   become: yes
   tasks:
     - name: Installing Nginx Server
-      ansible.builtin.yum:
-        name: httpd
-        state: latest
-    - name: Remove a directory (and all its contents)
-      ansible.builtin.file:
-        path: //usr/share/nginx/html/*
-        state: absent
+      ansible.builtin.dnf:
+        name:
+          - nginx
+          - unzip
+        state: present
 
-    - name: Add a new directory
+    - name: Ensure nginx config directory exists
       ansible.builtin.file:
-        path: /usr/share/nginx/html/*
+        path: /etc/nginx/default.d
         state: directory
         mode: '0755'
-      
-    - name: Download and Extract ngnix server content
+
+    - name: Remove a directory (and all its contents)
+      ansible.builtin.file:
+        path: /usr/share/nginx/html
+        state: directory
+        mode: '0755'
+
+    - name: Download and Extract nginx server content
       ansible.builtin.unarchive:
-        src: https://roboshop-artifacts.s3.amazonaws.com/frontend.zip 
+        src: https://roboshop-artifacts.s3.amazonaws.com/frontend.zip
         dest: /usr/share/nginx/html
         remote_src: yes
+        mode: '0755'
 
-    - name: Copy file with owner and permissions
+    - name: Copy nginx config file with owner and permissions
       ansible.builtin.copy:
         src: roboshop.conf
         dest: /etc/nginx/default.d/roboshop.conf
-    - name: Make sure a service unit is running
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Make sure nginx service is running
       ansible.builtin.systemd:
+        name: nginx
         state: restarted
-        name: ngnix
         enabled: true
 
 
