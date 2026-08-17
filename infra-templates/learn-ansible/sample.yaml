@@ -1,0 +1,13 @@
+# sample.yaml is playbook
+# Every playbook start with a list, meaning it can have one or more plays.
+# Name keyword is optional and it is good have
+# host is must to have keyword
+# Either tasks/roles is a must to have role.
+
+
+- name: Demo playbook
+  hosts: all
+  tasks: 
+    - name : Print Hello World
+      ansible.builtin.debug:
+        msg: Hello World

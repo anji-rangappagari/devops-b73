@@ -1,0 +1,42 @@
+How ansible connects to the node 
+- ansible uses ssh
+- ansible needs invertory
+
+
+ansible works as push and pull
+
+- ansible can push/pull changes on server
+
+
+How ansible Manages node configuration
+- 
+ Earlier modules - this expire
+latest Collection - collection is nithing but group of modules
+
+
+Frontend Server Setup
+  - Install Nginx Server
+  - Configure
+  - Start Ngnix Service
+
+How Ansible handles
+
+- Install Collection
+- File Collection
+- Service Collection
+
+
+Ansible Playbook
+
+- Ansible Playbook to be written in YAML Markup language
+
+----------------------
+
+- Ansible is expecting the inputs in YAML
+- Keys (Patamaters) are provided by Ansible
+- Some Values are also provided by Ansible
+- 
+
+Plain
+List
+Map Directory

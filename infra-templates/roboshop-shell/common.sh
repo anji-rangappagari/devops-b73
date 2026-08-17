@@ -87,8 +87,6 @@ mongo_schema_setup() {
     echo -e "${colour}Load Schema${nocolour}"
     mongosh --host mongodb-dev.oneseven.space <${app_path}/db/master-data.js &>> ${log_file}
     status_check $?
-        echo FAILURE
-    fi
 }
 
 mysql_schema_setup() {
@@ -98,11 +96,7 @@ mysql_schema_setup() {
 
     echo -e "${colour}Load Schema${nocolour}"
     mysql -h mysql-dev.oneseven.space -uroot -pRoboShop@1 <${app_path}/db/schema.sql &>> ${log_file}
-    if [ $? -eq 0 ]; then
-        echo SUCCESS
-    else
-        echo FAILURE
-    fi
+    status_check $?
 }
 
 mavan() {
@@ -131,49 +125,29 @@ mavan() {
 
     echo -e "${colour}Downloading Shipping Application${nocolour}"
     curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>>${log_file}
-    if [ $? -eq 0 ]; then
-        echo SUCCESS
-    else
-        echo FAILURE
-    fi
+    status_check $?
 
     echo -e "${colour}Extracting Shipping Application${nocolour}"
     cd ${app_path}
     unzip -o /tmp/shipping.zip &>>${log_file}
-    if [ $? -eq 0 ]; then
-        echo SUCCESS
-    else
-        echo FAILURE
-    fi
+    status_check $?
 
     echo -e "${colour}Building Shipping Application${nocolour}"
     cd ${app_path}
     mvn clean package &>>${log_file}
     mv target/shipping-1.0.jar shipping.jar &>>${log_file}
     chown -R roboshop:roboshop ${app_path}
-    if [ $? -eq 0 ]; then
-        echo SUCCESS
-    else
-        echo FAILURE
-    fi
+    status_check $?
 
     echo -e "${colour}Configuring Shipping Service${nocolour}"
     cp "${SCRIPT_DIR}/shipping.service" /etc/systemd/system/shipping.service &>>${log_file}
-    if [ $? -eq 0 ]; then
-        echo SUCCESS
-    else
-        echo FAILURE
-    fi
+    status_check $?
 
     echo -e "${colour}Loading Shipping Service${nocolour}"
     systemctl daemon-reload &>>${log_file}
     systemctl enable ${component} &>>${log_file}
     systemctl start ${component} &>>${log_file}
-    if [ $? -eq 0 ]; then
-        echo SUCCESS
-    else
-        echo FAILURE
-    fi
+    status_check $?
 }
 
 python() {

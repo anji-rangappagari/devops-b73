@@ -6,26 +6,29 @@ echo -e "${colour}Installing Nginx Server${nocolour}"
 dnf module disable nginx -y &>>${file_log}
 dnf module enable nginx:1.24 -y &>>${file_log}
 dnf install nginx unzip -y &>>${file_log}
+status_check $?
 
 echo -e "${colour}Starting Nginx service${nocolour}"
 systemctl enable nginx &>>${file_log}
 systemctl start nginx &>>${file_log}
+status_check $?
 
 echo -e "${colour}Removing old app content${nocolour}"
 rm -rf /usr/share/nginx/html/*
-
+status_check $?
 echo -e "${colour}Downloading the ${component} content${nocolour}"
 curl -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/${component}-v3.zip &>>${file_log}
-
+status_check $?
 echo -e "${colour}Extracting the ${component} content${nocolour}"
 cd /usr/share/nginx/html
 unzip -o /tmp/${component}.zip &>>${file_log}
-
+status_check $?
 echo -e "${colour}Configuring Nginx reverse proxy${nocolour}"
 # Avoid empty-glob / duplicate default-server failures on RHEL nginx
 mkdir -p /etc/nginx/default.d /etc/nginx/conf.d
 rm -f /etc/nginx/conf.d/default.conf
 echo '# managed by roboshop' >/etc/nginx/default.d/placeholder.conf
+status_check $?
 
 cat >/etc/nginx/nginx.conf <<'EOF'
 user nginx;
@@ -93,4 +96,6 @@ EOF
 
 echo -e "\e[33mRestarting Nginx service\e[0m"
 nginx -t &>>${file_log}
+status_check $?
 systemctl restart nginx &>>${file_log}
+status_check $?
