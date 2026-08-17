@@ -3,26 +3,28 @@
   hosts: all
   become: yes
   tasks:
-  - name: Copy MongoDB repo files
+  - name: Copy MongoDB repo file
     ansible.builtin.copy:
-      src: mongodb.conf
+      src: mongodb.repo
       dest: /etc/yum.repos.d/mongodb.repo
       owner: root
       group: root
       mode: '0644'
-  - name: Installing Nginx Server
+
+  - name: Install MongoDB Server
     ansible.builtin.dnf:
       name: mongodb-org
       state: latest
+
   - name: Replace old IP address with new one
     ansible.builtin.replace:
-      path: /etc/mongodb.conf
+      path: /etc/mongod.conf
       regexp: '127.0.0.1'
       replace: '0.0.0.0'
 
-  - name: Start and enable nginx service
+  - name: Start and enable MongoDB service
     ansible.builtin.systemd:
-      name: mongodb
+      name: mongod
       state: started
       enabled: true
       daemon_reload: true
