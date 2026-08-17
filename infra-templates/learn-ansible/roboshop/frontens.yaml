@@ -6,8 +6,32 @@
       ansible.builtin.yum:
         name: httpd
         state: latest
+    - name: Remove a directory (and all its contents)
+      ansible.builtin.file:
+        path: //usr/share/nginx/html/*
+        state: absent
 
+    - name: Add a new directory
+      ansible.builtin.file:
+        path: /usr/share/nginx/html/*
+        state: directory
+        mode: '0755'
       
+    - name: Download and Extract ngnix server content
+      ansible.builtin.unarchive:
+        src: /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
+        dest: /usr/share/nginx/html
+        remote_src: yes
+
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: roboshop.conf
+        dest: /etc/nginx/default.d/roboshop.conf
+    - name: Make sure a service unit is running
+      ansible.builtin.systemd:
+        state: restarted
+        name: ngnix
+        enabled: true
 
 
 # set -e
