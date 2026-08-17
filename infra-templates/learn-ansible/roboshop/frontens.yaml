@@ -36,11 +36,18 @@
         group: root
         mode: '0644'
 
-    - name: Make sure nginx service is running
+    - name: Validate nginx configuration
+      ansible.builtin.command: nginx -t
+      register: nginx_test
+      failed_when: nginx_test.rc != 0
+      changed_when: false
+
+    - name: Start and enable nginx service
       ansible.builtin.systemd:
         name: nginx
-        state: restarted
+        state: started
         enabled: true
+        daemon_reload: true
 
 
 # set -e
