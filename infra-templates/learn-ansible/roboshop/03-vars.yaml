@@ -1,0 +1,8 @@
+- name: Decalre a variable
+  hosts: all
+  vars:
+    URL: example.com
+  tasks:
+    - name: Print the URL variable
+      ansible.builtin.debug:
+        msg: URL - {{ URL }}
