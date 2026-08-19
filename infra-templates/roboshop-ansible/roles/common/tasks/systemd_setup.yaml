@@ -1,0 +1,26 @@
+
+- name: Copy SystemD File
+  ansible.builtin.copy:
+    src: "{{ componet }}.service"
+    dest: /etc/systemd/system/{{componet}}.service
+
+- name: Start {{ component }} Service
+  ansible.builtin.systemd:
+    name: "{{ componenet }}"
+    state: restarted
+    enabled: yes
+    daemon-related: yes
+
+
+
+  systemd_setup() {
+    echo -e "${colour}Configuring ${component} Service${nocolour}"
+    cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/${component}.service /etc/systemd/system/${component}.service &>>${log_file}
+    status_check $?
+
+    echo -e "${colour}Starting ${component} Service${nocolour}"
+    systemctl daemon-reload &>>${log_file}
+    systemctl enable ${component} &>>${log_file}
+    systemctl restart ${component} &>>${log_file}
+    status_check $?
+}

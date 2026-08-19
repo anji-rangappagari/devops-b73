@@ -5,18 +5,15 @@
       name: nodejs
       state: installed
 
- - name: Include task list in play
-   ansible.builtin.import_tasks:
+- name: Include task list in play
+  ansible.builtin.import_tasks:
     file: app_presetup.yaml
-      
-    
-    
-    
 
-    app_presetup
-
-    echo -e "${colour}Install NodeJS Dependencies${nocolour}"
-    cd ${app_path}
-    npm install &>> ${log_file}
-    status_check $?
-    systemd_setup
+- name: Load NodeJs Dependecies
+  ansible.builtin.shell: npm install
+  orgs:
+    chdir: /app
+- name: Systemd Setup
+  ansible.builtin.import_tasks:
+    file: systemd_setup.yaml
+    # systemd_setup
