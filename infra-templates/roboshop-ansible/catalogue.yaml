@@ -1,0 +1,6 @@
+- name: Setup Catalogue component
+  hosts: all
+  become: yes
+  tasks:
+    
+    
