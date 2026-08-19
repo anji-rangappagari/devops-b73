@@ -1,0 +1,29 @@
+
+- name: Copy MongoDB Repo file
+  ansible.builtin.copy:
+    src: mongodb.repo
+    dest: /etc/yum.repos.d/mongodb.repo
+
+- name: Install Mongo Client
+  ansible.builtin.dnf:
+    name:  mongodb-org-shell
+    state: installed
+- name: Load schema
+  ansible.builtin.shell: mongo -host mongodb-dev.oneseven.space <app/schema/db/{{ component }}}.js
+
+
+
+
+mongo_schema_setup() {
+    echo -e "${colour}Copy MongoDB Repo file${nocolour}"
+    cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/mongodb.repo /etc/yum.repos.d/mongodb.repo &>> ${log_file}
+    status_check $?
+
+    echo -e "${colour}Install MongoDB Client${nocolour}"
+    dnf install mongodb-org -y &>> ${log_file}
+    status_check $?
+
+    echo -e "${colour}Load Schema${nocolour}"
+    mongosh --host mongodb-dev.oneseven.space <${app_path}/db/master-data.js &>> ${log_file}
+    status_check $?
+}
