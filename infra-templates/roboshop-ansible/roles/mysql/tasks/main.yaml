@@ -28,58 +28,116 @@
   when: mysql_install.changed
 
 - name: Set MySQL root password on fresh installation
-  ansible.builtin.command: mysql_secure_installation --set-root-pass {{ mysql_root_password }}
+  ansible.builtin.command:
+    argv:
+      - mysql_secure_installation
+      - --set-root-pass
+      - "{{ mysql_root_password }}"
   when: mysql_install.changed
   no_log: true
 
-- name: Check if desired MySQL root password already works
-  ansible.builtin.command: mysql -uroot -e "SELECT 1;"
+# --- Existing install: discover how we can login, then set RoboShop password ---
+
+- name: Check login with desired root password
+  ansible.builtin.command:
+    argv: [mysql, -uroot, -e, "SELECT 1;"]
   environment:
     MYSQL_PWD: "{{ mysql_root_password }}"
-  register: mysql_desired_login
+  register: mysql_login_desired
   changed_when: false
   failed_when: false
   when: not mysql_install.changed
   no_log: true
 
-- name: Require current MySQL root password on existing installation
-  ansible.builtin.assert:
-    that:
-      - mysql_current_root_password is defined
-      - mysql_current_root_password | length > 0
-      - mysql_current_root_password not in ['OLD_PASSWORD', 'CURRENT_PASSWORD', 'ACTUAL_CURRENT_PASSWORD']
-    fail_msg: >-
-      MySQL is already installed and the desired password does not work yet.
-      Pass the real existing root password with
-      -e mysql_current_root_password='REAL_CURRENT_PASSWORD'.
-      For this host the current password is usually RoboShop@1.
+- name: Check passwordless / socket root login
+  ansible.builtin.command:
+    argv: [mysql, -uroot, -e, "SELECT 1;"]
+  register: mysql_login_socket
+  changed_when: false
+  failed_when: false
   when:
     - not mysql_install.changed
-    - mysql_desired_login.rc != 0
+    - mysql_login_desired.rc != 0
 
-- name: Change MySQL root password on existing installation
-  ansible.builtin.command: >-
-    mysql -uroot -e
-    "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';
-    FLUSH PRIVILEGES;"
+- name: Check login with provided current root password
+  ansible.builtin.command:
+    argv: [mysql, -uroot, -e, "SELECT 1;"]
+  environment:
+    MYSQL_PWD: "{{ mysql_current_root_password | default('') }}"
+  register: mysql_login_current
+  changed_when: false
+  failed_when: false
+  when:
+    - not mysql_install.changed
+    - mysql_login_desired.rc != 0
+    - mysql_login_socket.rc is defined
+    - mysql_login_socket.rc != 0
+    - mysql_current_root_password is defined
+    - mysql_current_root_password | length > 0
+    - mysql_current_root_password not in ['OLD_PASSWORD', 'CURRENT_PASSWORD', 'ACTUAL_CURRENT_PASSWORD']
+  no_log: true
+
+- name: Fail if no working MySQL root login method
+  ansible.builtin.fail:
+    msg: >-
+      Cannot log in to MySQL as root.
+      Desired password (mysql_root_password) does not work,
+      passwordless/socket login does not work,
+      and mysql_current_root_password did not work (or was not provided).
+      Reset on the host, then re-run:
+
+        sudo systemctl stop mysqld
+        sudo mysqld --skip-grant-tables --user=mysql &
+        sleep 3
+        mysql -uroot -e "FLUSH PRIVILEGES; ALTER USER 'root'@'localhost' IDENTIFIED BY 'RoboShop@1';"
+        sudo pkill mysqld
+        sudo systemctl start mysqld
+  when:
+    - not mysql_install.changed
+    - mysql_login_desired.rc != 0
+    - mysql_login_socket.rc | default(1) != 0
+    - mysql_login_current.rc | default(1) != 0
+
+- name: Set root password using socket login
+  ansible.builtin.command:
+    argv:
+      - mysql
+      - -uroot
+      - -e
+      - "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
+  when:
+    - not mysql_install.changed
+    - mysql_login_desired.rc != 0
+    - mysql_login_socket.rc | default(1) == 0
+  no_log: true
+
+- name: Set root password using provided current password
+  ansible.builtin.command:
+    argv:
+      - mysql
+      - -uroot
+      - -e
+      - "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
   environment:
     MYSQL_PWD: "{{ mysql_current_root_password }}"
   when:
     - not mysql_install.changed
-    - mysql_desired_login.rc != 0
+    - mysql_login_desired.rc != 0
+    - mysql_login_socket.rc | default(1) != 0
+    - mysql_login_current.rc | default(1) == 0
   no_log: true
-  register: mysql_password_change
-  failed_when: mysql_password_change.rc != 0
 
 - name: Allow remote root connections for RoboShop
-  ansible.builtin.command: >-
-    mysql -uroot -e
-    "CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
-    ALTER USER 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
-    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
-    FLUSH PRIVILEGES;"
+  ansible.builtin.command:
+    argv:
+      - mysql
+      - -uroot
+      - -e
+      - >-
+        CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
+        ALTER USER 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
+        GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+        FLUSH PRIVILEGES;
   environment:
     MYSQL_PWD: "{{ mysql_root_password }}"
-  register: mysql_remote_grant
-  failed_when: mysql_remote_grant.rc != 0
   no_log: true
