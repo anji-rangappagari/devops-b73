@@ -38,3 +38,9 @@
     name: "{{ component }}"
     state: restarted
     enabled: true
+
+- name: Ensure {{ component }} service is active
+  ansible.builtin.command: systemctl is-active {{ component }}
+  register: component_active
+  changed_when: false
+  failed_when: component_active.stdout != "active"

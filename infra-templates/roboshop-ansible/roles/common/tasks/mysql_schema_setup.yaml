@@ -2,16 +2,21 @@
   ansible.builtin.shell: >
     mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
     < /app/db/schema.sql
-  no_log: true
 
 - name: Create {{ component }} database user
   ansible.builtin.shell: >
     mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
     < /app/db/app-user.sql
-  no_log: true
 
 - name: Load {{ component }} master data
   ansible.builtin.shell: >
     mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
     < /app/db/master-data.sql
-  no_log: true
+
+- name: Verify countries master data is present
+  ansible.builtin.shell: >
+    mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
+    -N -e "SELECT COUNT(*) FROM cities.countries;"
+  register: countries_count
+  changed_when: false
+  failed_when: countries_count.stdout | trim | int < 1

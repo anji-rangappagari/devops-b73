@@ -1,1 +1,2 @@
 component: payment
+artifact_url: https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip

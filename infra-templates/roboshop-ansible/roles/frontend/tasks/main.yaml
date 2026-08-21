@@ -11,29 +11,23 @@
       - unzip
     state: present
 
-- name: Ensure nginx config directory exists
-  ansible.builtin.file:
-    path: /etc/nginx/default.d
-    state: directory
-    mode: '0755'
-
-- name: Remove a directory (and all its contents)
+- name: Ensure html directory exists
   ansible.builtin.file:
     path: /usr/share/nginx/html
     state: directory
     mode: '0755'
 
-- name: Download and Extract nginx server content
+- name: Download and Extract frontend content
   ansible.builtin.unarchive:
     src: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
     dest: /usr/share/nginx/html
-    remote_src: yes
+    remote_src: true
     mode: '0755'
 
-- name: Copy nginx config file with owner and permissions
+- name: Configure Nginx reverse proxy
   ansible.builtin.copy:
-    src: roboshop.conf
-    dest: /etc/nginx/default.d/roboshop.conf
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
     owner: root
     group: root
     mode: '0644'
@@ -44,9 +38,8 @@
   failed_when: nginx_test.rc != 0
   changed_when: false
 
-- name: Start and enable nginx service
+- name: Restart nginx service
   ansible.builtin.systemd:
     name: nginx
-    state: started
+    state: restarted
     enabled: true
-    daemon_reload: true
