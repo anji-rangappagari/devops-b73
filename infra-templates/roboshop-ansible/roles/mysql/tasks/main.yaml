@@ -1,6 +1,14 @@
-- name: Install MySQL Server
+- name: Copy MySQL repository file
+  ansible.builtin.copy:
+    src: mysql.repo
+    dest: /etc/yum.repos.d/mysql.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install MySQL Community Server
   ansible.builtin.dnf:
-    name: mysql-server
+    name: mysql-community-server
     state: present
   register: mysql_install
 
