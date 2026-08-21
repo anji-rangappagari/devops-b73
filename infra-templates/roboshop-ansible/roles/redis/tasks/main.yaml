@@ -3,8 +3,11 @@
     name: https://rpms.remirepo.net/enterprise/remi-release-8.rpm
     state: installed
     disable_gpg_check: true
-- name: Enable Redis 6 Version
-  ansible.builtin.shell: dnf module enable redis:redis-6.2 -y
+- name: Disable default Redis module
+  ansible.builtin.command: dnf module disable redis -y
+
+- name: Enable Redis 7 module
+  ansible.builtin.command: dnf module enable redis:7 -y
 
 - name: Install Redis
   ansible.builtin.dnf:

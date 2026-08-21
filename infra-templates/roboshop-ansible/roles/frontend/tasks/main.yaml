@@ -1,3 +1,9 @@
+- name: Disable default Nginx module
+  ansible.builtin.command: dnf module disable nginx -y
+
+- name: Enable Nginx 1.24 module
+  ansible.builtin.command: dnf module enable nginx:1.24 -y
+
 - name: Installing Nginx Server
   ansible.builtin.dnf:
     name:
@@ -19,7 +25,7 @@
 
 - name: Download and Extract nginx server content
   ansible.builtin.unarchive:
-    src: https://roboshop-artifacts.s3.amazonaws.com/frontend.zip
+    src: https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
     dest: /usr/share/nginx/html
     remote_src: yes
     mode: '0755'
