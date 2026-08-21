@@ -41,6 +41,16 @@
       -e mysql_current_root_password='CURRENT_PASSWORD'.
   when: not mysql_install.changed
 
+- name: Change MySQL root password on existing installation
+  ansible.builtin.command: >-
+    mysql -uroot -e
+    "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';
+    FLUSH PRIVILEGES;"
+  environment:
+    MYSQL_PWD: "{{ mysql_current_root_password }}"
+  when: not mysql_install.changed
+  no_log: true
+
 - name: Allow remote root connections for RoboShop
   ansible.builtin.command: >-
     mysql -uroot -e
@@ -49,6 +59,6 @@
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
     FLUSH PRIVILEGES;"
   environment:
-    MYSQL_PWD: "{{ mysql_current_root_password | default(mysql_root_password) }}"
+    MYSQL_PWD: "{{ mysql_root_password }}"
   register: mysql_remote_grant
   failed_when: mysql_remote_grant.rc != 0
