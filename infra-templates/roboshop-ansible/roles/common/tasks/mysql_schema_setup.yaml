@@ -1,2 +1,8 @@
-- name: Load Schema
-  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -pRoboshop@1 </app/schema/{{ component }}.sql
+- name: Load Shipping database schema
+  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'RoboShop@1' < /app/db/schema.sql
+
+- name: Create Shipping database user
+  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'RoboShop@1' < /app/db/app-user.sql
+
+- name: Load Shipping master data
+  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'RoboShop@1' < /app/db/master-data.sql
