@@ -18,7 +18,7 @@ variable "instace_count" {
     mysql     = {}
     shipping  = {}
     payment   = {}
-    # rabbitmq  = {}
-    # dispatch  = {}
+    rabbitmq  = {}
+    dispatch  = {}
   }
 }

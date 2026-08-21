@@ -34,14 +34,18 @@
     name: mysqld
     state: restarted
 
-- name: Setup root password
-  ansible.builtin.command: mysql_secure_installation --set-root-pass RoboShop@1
+- name: Set MySQL root password through local socket
+  ansible.builtin.command: >-
+    mysql -e
+    "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';
+    FLUSH PRIVILEGES;"
+  become: true
 
 - name: Allow remote root connections for RoboShop
   ansible.builtin.command: >-
-    mysql -uroot -p'RoboShop@1' -e
-    "CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'RoboShop@1';
-    ALTER USER 'root'@'%' IDENTIFIED BY 'RoboShop@1';
+    mysql -uroot -p'{{ mysql_root_password }}' -e
+    "CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
+    ALTER USER 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
     GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
     FLUSH PRIVILEGES;"
      
