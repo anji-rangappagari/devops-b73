@@ -50,4 +50,5 @@
     FLUSH PRIVILEGES;"
   environment:
     MYSQL_PWD: "{{ mysql_current_root_password | default(mysql_root_password) }}"
-  no_log: true
+  register: mysql_remote_grant
+  failed_when: mysql_remote_grant.rc != 0
