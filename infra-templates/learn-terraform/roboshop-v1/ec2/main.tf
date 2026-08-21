@@ -3,26 +3,26 @@ resource "aws_instance" "web" {
   instance_type          = "t2.small"
   vpc_security_group_ids = [aws_security_group.sg.id]
 
-  connection {
-    type     = "ssh"
-    user     = "ec2-user"
-    password = "DevOps321"
-    host     = self.public_ip
-  }
+  # connection {
+  #   type     = "ssh"
+  #   user     = "ec2-user"
+  #   password = "DevOps321"
+  #   host     = self.public_ip
+  # }
 
-  provisioner "file" {
-    source      = "${path.module}/../../../roboshop-shell"
-    destination = "/tmp/roboshop-shell"
-  }
+  # provisioner "file" {
+  #   source      = "${path.module}/../../../roboshop-shell"
+  #   destination = "/tmp/roboshop-shell"
+  # }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo rm -rf /home/ec2-user/devops-b73/infra-templates/roboshop-shell",
-      "sudo mkdir -p /home/ec2-user/devops-b73/infra-templates",
-      "sudo mv /tmp/roboshop-shell /home/ec2-user/devops-b73/infra-templates/roboshop-shell",
-      "sudo bash /home/ec2-user/devops-b73/infra-templates/roboshop-shell/${var.name}.sh"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "sudo rm -rf /home/ec2-user/devops-b73/infra-templates/roboshop-shell",
+  #     "sudo mkdir -p /home/ec2-user/devops-b73/infra-templates",
+  #     "sudo mv /tmp/roboshop-shell /home/ec2-user/devops-b73/infra-templates/roboshop-shell",
+  #     "sudo bash /home/ec2-user/devops-b73/infra-templates/roboshop-shell/${var.name}.sh"
+  #   ]
+  # }
 
   tags = {
     Name = var.name

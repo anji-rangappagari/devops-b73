@@ -9,13 +9,12 @@ module "instances" {
 }
 variable "instace_count" {
   default = {
-    frontend1  = {}
-    frontend2  = {}
-    # catalogue = {}
-    # mongodb   = {}
-    # user      = {}
-    # redis     = {}
-    # cart      = {}
+    frontend  = {}
+    mongodb   = {}
+    catalogue = {}
+    user      = {}
+    redis     = {}
+    cart      = {}
     # mysql     = {}
     # shipping  = {}
     # payment   = {}
