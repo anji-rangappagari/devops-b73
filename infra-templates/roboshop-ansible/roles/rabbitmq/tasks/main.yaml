@@ -4,30 +4,23 @@
 - name: configure Rabbitmq Repos
   ansible.builtin.shell: https://packagecloud.io/install/repositories/{{component}}/{{ component }}-server/script.rpm.sh
 
+- name: Install Rabiitmq server
+  ansible.builtin.dnf:
+    name: rabbitmq-server
+    state: installed
 
+- name: start Rabbitmq server
+  ansible.builtin.systemd:
+    name: rabbitmq-server
+    state: restarted
+    enabled: yes
 
-# set -e
-# component=rabbitmq
-# source common.sh
-# echo -e "${colour}Installing Erlang Repository${nocolour}"
-# curl -s https://packagecloud.io/install/repositories/${component}/erlang/script.rpm.sh | bash  &>>${log_file}
-# status_check $?
-# echo -e "${colour}Installing RabbitMQ Repository${nocolour}"
-# curl -s https://packagecloud.io/install/repositories/${component}/${component}-server/script.rpm.sh | bash &>>${log_file}
-# status_check $?
-
-# echo -e "${colour}Installing RabbitMQ${nocolour}"
-# dnf install ${component}-server -y  &>>${log_file}
-# status_check $?
-
-
-# echo -e "${colour}Starting RabbitMQ Service${nocolour}"
-# systemctl enable ${component}-server &>>${log_file}
-# systemctl start ${component}-server &>>${log_file}
-# status_check $?
-
-# echo -e "${colour}Creating Application User${nocolour}"
-# rabbitmqctl add_user roboshop $1 &>>${log_file}
-# rabbitmqctl set_user_tags roboshop administrator &>>${log_file}
-# rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>>${log_file}
-# status_check $?
+- name: Add Application user
+  community.rabbitmq.rabbitmq_user:
+    user: roboshop
+    password: roboshop123
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
