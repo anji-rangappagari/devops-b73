@@ -1,12 +1,12 @@
 
 - name: Copy SystemD File
   ansible.builtin.copy:
-    src: "{{ componet }}.service"
-    dest: /etc/systemd/system/{{componet}}.service
+    src: "{{ component }}.service"
+    dest: "/etc/systemd/system/{{ component }}.service"
 
 - name: Start {{ component }} Service
   ansible.builtin.systemd:
-    name: "{{ componenet }}"
+    name: "{{ component }}"
     state: restarted
     enabled: yes
-    daemon-related: yes
+    daemon_reload: true
