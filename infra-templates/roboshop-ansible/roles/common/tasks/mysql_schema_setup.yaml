@@ -1,8 +1,17 @@
-- name: Load Shipping database schema
-  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'{{ mysql_root_password | default("RoboShop@1") }}' < /app/db/schema.sql
+- name: Load {{ component }} database schema
+  ansible.builtin.shell: >
+    mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
+    < /app/db/schema.sql
+  no_log: true
 
-- name: Create Shipping database user
-  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'{{ mysql_root_password | default("RoboShop@1") }}' < /app/db/app-user.sql
+- name: Create {{ component }} database user
+  ansible.builtin.shell: >
+    mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
+    < /app/db/app-user.sql
+  no_log: true
 
-- name: Load Shipping master data
-  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'{{ mysql_root_password | default("RoboShop@1") }}' < /app/db/master-data.sql
+- name: Load {{ component }} master data
+  ansible.builtin.shell: >
+    mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
+    < /app/db/master-data.sql
+  no_log: true

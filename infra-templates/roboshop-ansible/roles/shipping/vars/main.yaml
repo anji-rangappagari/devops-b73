@@ -1,2 +1,4 @@
 component: shipping
 artifact_url: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip
+mysql_host: mysql-dev.oneseven.space
+mysql_root_password: RoboShop@1

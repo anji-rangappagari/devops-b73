@@ -5,23 +5,16 @@
       - mysql
       - unzip
     state: present
+
 - name: App pre-requisites
   ansible.builtin.import_tasks:
     file: app_presetup.yaml
 
-- name: Download and extract Shipping application
-  ansible.builtin.unarchive:
-    src: "{{ artifact_url }}"
-    dest: /app
-    remote_src: true
-- name: Mysql Schema Setup
-  ansible.builtin.import_tasks:
-    file: mysql_schema_setup.yaml
-
-- name: Build Shipping application
+- name: Build Maven application
   ansible.builtin.shell: |
+    set -e
     mvn clean package
-    mv target/shipping-1.0.jar shipping.jar
+    mv target/{{ component }}-1.0.jar {{ component }}.jar
   args:
     chdir: /app
 
@@ -32,17 +25,16 @@
     group: roboshop
     recurse: true
 
-- name: Copy Shipping systemd service
-  ansible.builtin.copy:
-    src: shipping.service
-    dest: /etc/systemd/system/shipping.service
-    owner: root
-    group: root
-    mode: '0644'
+- name: Systemd Setup
+  ansible.builtin.import_tasks:
+    file: systemd_setup.yaml
 
-- name: Reload and start Shipping service
+- name: MySQL Schema Setup
+  ansible.builtin.import_tasks:
+    file: mysql_schema_setup.yaml
+
+- name: Restart {{ component }} service after schema load
   ansible.builtin.systemd:
-    name: shipping
-    state: started
+    name: "{{ component }}"
+    state: restarted
     enabled: true
-    daemon_reload: true
