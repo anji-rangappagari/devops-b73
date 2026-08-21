@@ -1,7 +1,7 @@
 - name: Copy MongoDB repo file
   ansible.builtin.copy:
-    src: mongodb.repo
-    dest: /etc/yum.repos.d/mongodb.repo
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
     owner: root
     group: root
     mode: '0644'
@@ -9,7 +9,7 @@
 - name: Install MongoDB Server
   ansible.builtin.dnf:
     name: mongodb-org
-    state: latest
+    state: installed
 
 - name: Replace old IP address with new one
   ansible.builtin.replace:

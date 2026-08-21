@@ -34,7 +34,7 @@ systemctl enable catalogue  &>>/tmp/roboshop.log
 systemctl start catalogue &>>/tmp/roboshop.log
 
 echo -e "\e[33mCopy MongoDB Repo file\e[0m"
-cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/mongodb.repo /etc/yum.repos.d/mongodb.repo &>>/tmp/roboshop.log
+cp /home/ec2-user/devops-b73/infra-templates/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>>/tmp/roboshop.log
 
 echo -e "\e[33mInstall MongoDB Client\e[0m"
 dnf install mongodb-org -y &>>/tmp/roboshop.log
