@@ -1,26 +1,36 @@
-- name: configure Erlang repos
-  ansible.builtin.shell: https://packagecloud.io/install/repositories/{{ component }}/erlang/script.rpm.sh
+- name: Configure Erlang repository
+  ansible.builtin.shell: curl -s https://packagecloud.io/install/repositories/rabbitmq/erlang/script.rpm.sh | bash
+  args:
+    creates: /etc/yum.repos.d/rabbitmq_erlang.repo
 
-- name: configure Rabbitmq Repos
-  ansible.builtin.shell: https://packagecloud.io/install/repositories/{{component}}/{{ component }}-server/script.rpm.sh
+- name: Configure RabbitMQ repository
+  ansible.builtin.shell: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | bash
+  args:
+    creates: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
 
-- name: Install Rabiitmq server
+- name: Install RabbitMQ server
   ansible.builtin.dnf:
     name: rabbitmq-server
-    state: installed
+    state: present
 
-- name: start Rabbitmq server
+- name: Start and enable RabbitMQ server
   ansible.builtin.systemd:
     name: rabbitmq-server
-    state: restarted
-    enabled: yes
+    state: started
+    enabled: true
 
 - name: Add Application user
-  community.rabbitmq.rabbitmq_user:
-    user: roboshop
-    password: roboshop123
-    vhost: /
-    configure_priv: .*
-    read_priv: .*
-    write_priv: .*
-    state: present
+  ansible.builtin.command: rabbitmqctl add_user roboshop {{ rabbitmq_app_password }}
+  register: rabbitmq_add_user
+  changed_when: rabbitmq_add_user.rc == 0
+  failed_when:
+    - rabbitmq_add_user.rc != 0
+    - "'already_exists' not in rabbitmq_add_user.stderr"
+    - "'already exists' not in (rabbitmq_add_user.stderr ~ rabbitmq_add_user.stdout)"
+
+- name: Set Application user tags
+  ansible.builtin.command: rabbitmqctl set_user_tags roboshop administrator
+
+- name: Set Application user permissions
+  ansible.builtin.command: >-
+    rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
