@@ -1,0 +1,57 @@
+- name: Install Maven and MySQL client
+  ansible.builtin.dnf:
+    name:
+      - maven
+      - mysql
+      - unzip
+    state: present
+- name: App pre-requisites
+  ansible.builtin.import_tasks:
+    file: app_presetup.yaml
+
+- name: Download and extract Shipping application
+  ansible.builtin.unarchive:
+    src: "{{ artifact_url }}"
+    dest: /app
+    remote_src: true
+- name: Mysql Schema Setup
+  ansible.builtin.import_tasks:
+    file: mysql_schema_setup.yaml
+
+- name: Build Shipping application
+  ansible.builtin.shell: |
+    mvn clean package
+    mv target/shipping-1.0.jar shipping.jar
+  args:
+    chdir: /app
+
+- name: Set application directory ownership
+  ansible.builtin.file:
+    path: /app
+    owner: roboshop
+    group: roboshop
+    recurse: true
+
+- name: Copy Shipping systemd service
+  ansible.builtin.copy:
+    src: shipping.service
+    dest: /etc/systemd/system/shipping.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload and start Shipping service
+  ansible.builtin.systemd:
+    name: shipping
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Load Shipping database schema
+  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'RoboShop@1' < /app/db/schema.sql
+
+- name: Create Shipping database user
+  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'RoboShop@1' < /app/db/app-user.sql
+
+- name: Load Shipping master data
+  ansible.builtin.shell: mysql -h mysql-dev.oneseven.space -uroot -p'RoboShop@1' < /app/db/master-data.sql
