@@ -1,1 +1,2 @@
 component: catalogue
+schema_file: /app/db/master-data.js

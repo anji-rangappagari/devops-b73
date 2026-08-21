@@ -1,9 +1,13 @@
-- name: Configuring  NodeJs Repos
-  ansible.builtin.shell:  curl -sL https://rpm.nodesource.com/setup_lts.x | bash
+- name: Disable default NodeJs module
+  ansible.builtin.command: dnf module disable nodejs -y
+
+- name: Enable NodeJs 20 module
+  ansible.builtin.command: dnf module enable nodejs:20 -y
+
 - name: Install NodeJs
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name: nodejs
-    state: installed
+    state: present
 
 - name: Include task list in play
   ansible.builtin.import_tasks:
