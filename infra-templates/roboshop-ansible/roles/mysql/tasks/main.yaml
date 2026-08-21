@@ -25,10 +25,21 @@
   ansible.builtin.systemd:
     name: mysqld
     state: restarted
+  when: mysql_install.changed
 
 - name: Set MySQL root password on fresh installation
   ansible.builtin.command: mysql_secure_installation --set-root-pass {{ mysql_root_password }}
   when: mysql_install.changed
+  no_log: true
+
+- name: Check if desired MySQL root password already works
+  ansible.builtin.command: mysql -uroot -e "SELECT 1;"
+  environment:
+    MYSQL_PWD: "{{ mysql_root_password }}"
+  register: mysql_desired_login
+  changed_when: false
+  failed_when: false
+  when: not mysql_install.changed
   no_log: true
 
 - name: Require current MySQL root password on existing installation
@@ -36,10 +47,15 @@
     that:
       - mysql_current_root_password is defined
       - mysql_current_root_password | length > 0
+      - mysql_current_root_password not in ['OLD_PASSWORD', 'CURRENT_PASSWORD', 'ACTUAL_CURRENT_PASSWORD']
     fail_msg: >-
-      MySQL is already installed. Pass the existing root password with
-      -e mysql_current_root_password='CURRENT_PASSWORD'.
-  when: not mysql_install.changed
+      MySQL is already installed and the desired password does not work yet.
+      Pass the real existing root password with
+      -e mysql_current_root_password='REAL_CURRENT_PASSWORD'.
+      For this host the current password is usually RoboShop@1.
+  when:
+    - not mysql_install.changed
+    - mysql_desired_login.rc != 0
 
 - name: Change MySQL root password on existing installation
   ansible.builtin.command: >-
@@ -48,8 +64,12 @@
     FLUSH PRIVILEGES;"
   environment:
     MYSQL_PWD: "{{ mysql_current_root_password }}"
-  when: not mysql_install.changed
+  when:
+    - not mysql_install.changed
+    - mysql_desired_login.rc != 0
   no_log: true
+  register: mysql_password_change
+  failed_when: mysql_password_change.rc != 0
 
 - name: Allow remote root connections for RoboShop
   ansible.builtin.command: >-
@@ -62,3 +82,4 @@
     MYSQL_PWD: "{{ mysql_root_password }}"
   register: mysql_remote_grant
   failed_when: mysql_remote_grant.rc != 0
+  no_log: true
