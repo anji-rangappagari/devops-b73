@@ -17,8 +17,33 @@
     name: mysqld
     state: restarted
     enabled: yes
+
+- name: Configure MySQL to listen on all interfaces
+  ansible.builtin.copy:
+    dest: /etc/my.cnf.d/roboshop.cnf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [mysqld]
+      bind-address=0.0.0.0
+      mysqlx-bind-address=0.0.0.0
+
+- name: Restart MySQL after network configuration
+  ansible.builtin.systemd:
+    name: mysqld
+    state: restarted
+
 - name: Setup root password
   ansible.builtin.command: mysql_secure_installation --set-root-pass RoboShop@1
+
+- name: Allow remote root connections for RoboShop
+  ansible.builtin.command: >-
+    mysql -uroot -p'RoboShop@1' -e
+    "CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'RoboShop@1';
+    ALTER USER 'root'@'%' IDENTIFIED BY 'RoboShop@1';
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;"
      
 
 
