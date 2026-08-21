@@ -15,9 +15,9 @@ variable "instace_count" {
     user      = {}
     redis     = {}
     cart      = {}
-    # mysql     = {}
-    # shipping  = {}
-    # payment   = {}
+    mysql     = {}
+    shipping  = {}
+    payment   = {}
     # rabbitmq  = {}
     # dispatch  = {}
   }
