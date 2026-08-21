@@ -6,6 +6,9 @@
     group: root
     mode: '0644'
 
+- name: Disable default MySQL module
+  ansible.builtin.command: dnf module disable mysql -y
+
 - name: Install MySQL Community Server
   ansible.builtin.dnf:
     name: mysql-community-server
