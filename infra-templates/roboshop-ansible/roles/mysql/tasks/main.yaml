@@ -1,17 +1,6 @@
-- name: Copy MySQL repository file
-  ansible.builtin.copy:
-    src: mysql.repo
-    dest: /etc/yum.repos.d/mysql.repo
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Disable default MySQL module
-  ansible.builtin.command: dnf module disable mysql -y
-
-- name: Install MySQL Community Server
+- name: Install MySQL Server 8.x
   ansible.builtin.dnf:
-    name: mysql-community-server
+    name: mysql-server
     state: present
   register: mysql_install
 
