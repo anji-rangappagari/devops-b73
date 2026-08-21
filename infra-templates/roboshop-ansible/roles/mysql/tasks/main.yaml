@@ -38,6 +38,7 @@
 - name: Set MySQL root password on fresh installation
   ansible.builtin.command: mysql_secure_installation --set-root-pass {{ mysql_root_password }}
   when: mysql_install.changed
+  no_log: true
 
 - name: Require current MySQL root password on existing installation
   ansible.builtin.assert:
@@ -58,3 +59,4 @@
     FLUSH PRIVILEGES;"
   environment:
     MYSQL_PWD: "{{ mysql_current_root_password | default(mysql_root_password) }}"
+  no_log: true
