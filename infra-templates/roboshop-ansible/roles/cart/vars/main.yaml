@@ -1,2 +1,3 @@
 component: cart
 artifact_url: https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip
+load_schema: false

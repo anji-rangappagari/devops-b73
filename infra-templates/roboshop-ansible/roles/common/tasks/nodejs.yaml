@@ -17,6 +17,12 @@
   ansible.builtin.shell: npm install
   args:
     chdir: /app
+
+- name: Load Schema Setup
+  ansible.builtin.import_tasks:
+    file: mongo_schema_setup.yaml
+  when: load_schema
+
 - name: Systemd Setup
   ansible.builtin.import_tasks:
     file: systemd_setup.yaml
