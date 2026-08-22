@@ -1,5 +1,5 @@
 - name: Copy SystemD File
-  ansible.builtin.template:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/roles/{{ component }}/files/{{ component }}.service"
     dest: "/etc/systemd/system/{{ component }}.service"
     owner: root
@@ -9,6 +9,6 @@
 - name: Start {{ component }} Service
   ansible.builtin.systemd:
     name: "{{ component }}"
-    state: started
+    state: restarted
     enabled: true
     daemon_reload: true
