@@ -20,23 +20,42 @@
       [mysqld]
       bind-address=0.0.0.0
       mysqlx-bind-address=0.0.0.0
+  register: mysql_bind_config
 
 - name: Restart MySQL after network configuration
   ansible.builtin.systemd:
     name: mysqld
     state: restarted
-  when: mysql_install.changed
+  when: mysql_install.changed or mysql_bind_config.changed
+
+- name: Wait for MySQL to accept connections
+  ansible.builtin.command: mysqladmin ping
+  register: mysql_ping
+  until: mysql_ping.rc == 0
+  retries: 15
+  delay: 2
+  changed_when: false
 
 - name: Set MySQL root password on fresh installation
+  ansible.builtin.command:
+    argv:
+      - mysql
+      - -uroot
+      - -e
+      - "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
+  when: mysql_install.changed
+  no_log: true
+
+- name: Set MySQL root password via mysql_secure_installation
   ansible.builtin.command:
     argv:
       - mysql_secure_installation
       - --set-root-pass
       - "{{ mysql_root_password }}"
   when: mysql_install.changed
+  failed_when: false
+  changed_when: false
   no_log: true
-
-# --- Existing install: discover how we can login, then set RoboShop password ---
 
 - name: Check login with desired root password
   ansible.builtin.command:
@@ -46,7 +65,6 @@
   register: mysql_login_desired
   changed_when: false
   failed_when: false
-  when: not mysql_install.changed
   no_log: true
 
 - name: Check passwordless / socket root login
@@ -55,9 +73,7 @@
   register: mysql_login_socket
   changed_when: false
   failed_when: false
-  when:
-    - not mysql_install.changed
-    - mysql_login_desired.rc != 0
+  when: mysql_login_desired.rc != 0
 
 - name: Check login with provided current root password
   ansible.builtin.command:
@@ -68,7 +84,6 @@
   changed_when: false
   failed_when: false
   when:
-    - not mysql_install.changed
     - mysql_login_desired.rc != 0
     - mysql_login_socket.rc is defined
     - mysql_login_socket.rc != 0
@@ -93,7 +108,6 @@
         sudo pkill mysqld
         sudo systemctl start mysqld
   when:
-    - not mysql_install.changed
     - mysql_login_desired.rc != 0
     - mysql_login_socket.rc | default(1) != 0
     - mysql_login_current.rc | default(1) != 0
@@ -106,7 +120,6 @@
       - -e
       - "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
   when:
-    - not mysql_install.changed
     - mysql_login_desired.rc != 0
     - mysql_login_socket.rc | default(1) == 0
   no_log: true
@@ -121,10 +134,22 @@
   environment:
     MYSQL_PWD: "{{ mysql_current_root_password }}"
   when:
-    - not mysql_install.changed
     - mysql_login_desired.rc != 0
     - mysql_login_socket.rc | default(1) != 0
     - mysql_login_current.rc | default(1) == 0
+  no_log: true
+
+- name: Drop existing remote root user if present
+  ansible.builtin.command:
+    argv:
+      - mysql
+      - -uroot
+      - -e
+      - "DROP USER IF EXISTS 'root'@'%';"
+  environment:
+    MYSQL_PWD: "{{ mysql_root_password }}"
+  changed_when: false
+  failed_when: false
   no_log: true
 
 - name: Allow remote root connections for RoboShop
@@ -134,10 +159,18 @@
       - -uroot
       - -e
       - >-
-        CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
-        ALTER USER 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
+        CREATE USER 'root'@'%' IDENTIFIED BY '{{ mysql_root_password }}';
         GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
         FLUSH PRIVILEGES;
   environment:
     MYSQL_PWD: "{{ mysql_root_password }}"
+  register: mysql_remote_root
   no_log: true
+
+- name: Report remote root setup failure
+  ansible.builtin.fail:
+    msg: >-
+      Failed to configure remote MySQL root access.
+      Ensure root can log in locally with mysql_root_password ({{ mysql_root_password }}).
+      mysql stderr: {{ mysql_remote_root.stderr | default('none') }}
+  when: mysql_remote_root.rc != 0
