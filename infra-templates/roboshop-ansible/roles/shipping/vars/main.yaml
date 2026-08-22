@@ -2,3 +2,6 @@ component: shipping
 artifact_url: https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip
 mysql_host: mysql-dev.oneseven.space
 mysql_root_password: RoboShop@1
+# shipping-v3 creates database `cities` with table `cities` (not `countries`)
+mysql_verify_query: "SELECT COUNT(*) FROM cities.cities;"
+mysql_verify_min_rows: 1

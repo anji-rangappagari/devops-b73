@@ -1,6 +1,18 @@
 - name: Setup Roboshop
   hosts: all
   become: yes
+  pre_tasks:
+    - name: Update repo on Ansible controller
+      ansible.builtin.command: git pull --ff-only origin main
+      delegate_to: localhost
+      become: false
+      args:
+        chdir: "{{ playbook_dir }}/../.."
+      register: repo_pull
+      changed_when: "'Already up to date' not in repo_pull.stdout"
+      failed_when: false
+      when: auto_git_pull | default(true) | bool
+
   roles:
     - "{{role_name}}"
     

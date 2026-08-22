@@ -1,22 +1,54 @@
+- name: Check whether MySQL seed data is already present
+  ansible.builtin.shell: >
+    mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
+    -N -e "{{ mysql_verify_query }}"
+  register: mysql_seed_check
+  changed_when: false
+  failed_when: false
+  when: mysql_verify_query is defined
+
+- name: Determine if MySQL schema load is required
+  ansible.builtin.set_fact:
+    mysql_schema_load_required: >-
+      {{
+        mysql_verify_query is not defined
+        or mysql_seed_check.rc != 0
+        or mysql_seed_check.stdout | default('0') | trim | int < (mysql_verify_min_rows | default(1) | int)
+      }}
+
 - name: Load {{ component }} database schema
   ansible.builtin.shell: >
     mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
     < /app/db/schema.sql
+  when: mysql_schema_load_required | bool
 
 - name: Create {{ component }} database user
   ansible.builtin.shell: >
     mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
     < /app/db/app-user.sql
+  when: mysql_schema_load_required | bool
 
 - name: Load {{ component }} master data
   ansible.builtin.shell: >
     mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
     < /app/db/master-data.sql
+  when: mysql_schema_load_required | bool
 
-- name: Verify cities master data is present
+- name: Skip MySQL schema load when seed data is already present
+  ansible.builtin.debug:
+    msg: >-
+      Skipping MySQL schema load for {{ component }}:
+      {{ mysql_verify_query }} already returns
+      {{ mysql_seed_check.stdout | default('unknown') | trim }} row(s).
+  when:
+    - mysql_verify_query is defined
+    - not (mysql_schema_load_required | bool)
+
+- name: Verify MySQL seed data is present
   ansible.builtin.shell: >
     mysql -h {{ mysql_host }} -uroot -p'{{ mysql_root_password }}'
-    -N -e "SELECT COUNT(*) FROM cities.cities;"
-  register: cities_count
+    -N -e "{{ mysql_verify_query }}"
+  register: mysql_seed_verify
   changed_when: false
-  failed_when: cities_count.stdout | trim | int < 1
+  failed_when: mysql_seed_verify.rc != 0 or mysql_seed_verify.stdout | trim | int < (mysql_verify_min_rows | default(1) | int)
+  when: mysql_verify_query is defined
