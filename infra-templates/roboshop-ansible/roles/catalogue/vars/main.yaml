@@ -1,3 +1,5 @@
 component: catalogue
 artifact_url: https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip
+load_schema: true
 schema_file: /app/db/master-data.js
+mongodb_host: mongodb-dev.oneseven.space

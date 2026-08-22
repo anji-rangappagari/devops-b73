@@ -6,6 +6,9 @@
 - name: Install Mongo Client
   ansible.builtin.dnf:
     name: mongodb-mongosh
-    state: installed
+    state: present
+
 - name: Load schema
-  ansible.builtin.shell: mongosh --host mongodb-dev.oneseven.space < {{ schema_file | default('app/schema/db/' ~ component ~ '.js') }}
+  ansible.builtin.shell: >
+    mongosh --host {{ mongodb_host | default('mongodb-dev.oneseven.space') }}
+    < {{ schema_file | default('/app/db/master-data.js') }}

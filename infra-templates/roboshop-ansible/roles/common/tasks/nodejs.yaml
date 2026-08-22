@@ -21,9 +21,8 @@
 - name: Load Schema Setup
   ansible.builtin.import_tasks:
     file: mongo_schema_setup.yaml
-  when: load_schema
+  when: load_schema | default(false) | bool
 
 - name: Systemd Setup
   ansible.builtin.import_tasks:
     file: systemd_setup.yaml
-    # systemd_setup
