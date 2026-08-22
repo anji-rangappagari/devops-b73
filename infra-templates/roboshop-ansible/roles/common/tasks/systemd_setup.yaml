@@ -1,5 +1,5 @@
 - name: Copy SystemD File
-  ansible.builtin.templates:
+  ansible.builtin.template:
     src: "{{ playbook_dir }}/roles/{{ component }}/files/{{ component }}.service"
     dest: "/etc/systemd/system/{{ component }}.service"
     owner: root
