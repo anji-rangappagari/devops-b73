@@ -1,21 +1,26 @@
-- name: Configure Erlang repository
-  ansible.builtin.shell: curl -s https://packagecloud.io/install/repositories/rabbitmq/{{ item }} | bash
-  args:
-    creates: /etc/yum.repos.d/rabbitmq_{{ item }}.repo
-  loop: 
-  - erlang/script.rpm.sh
-  - rabbitmq/script.rpm.sh
+- name: Import RabbitMQ repository signing keys
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ item }}"
+  loop:
+    - https://github.com/rabbitmq/signing-keys/releases/download/3.0/rabbitmq-release-signing-key.asc
+    - https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key
+    - https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key
 
+- name: Configure official RabbitMQ yum repositories
+  ansible.builtin.copy:
+    src: rabbitmq.repo
+    dest: /etc/yum.repos.d/rabbitmq.repo
+    owner: root
+    group: root
+    mode: '0644'
 
-
-- name: Configure RabbitMQ repository
-  ansible.builtin.shell: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | bash
-  args:
-    creates: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
-
-- name: Install RabbitMQ server
+- name: Install RabbitMQ and Erlang
   ansible.builtin.dnf:
-    name: rabbitmq-server
+    name:
+      - logrotate
+      - erlang
+      - rabbitmq-server
     state: present
 
 - name: Start and enable RabbitMQ server
