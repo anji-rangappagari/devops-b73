@@ -1,0 +1,10 @@
+- name: Ensure db directory exists
+  ansible.builtin.file:
+    path: /app/db
+    state: directory
+
+- name: Copy user MongoDB seed data
+  ansible.builtin.copy:
+    src: master-data.js
+    dest: /app/db/master-data.js
+    mode: "0644"
