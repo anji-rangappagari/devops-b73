@@ -27,3 +27,14 @@ variable "env" {
 output "env" {
     value = var.env
 }
+
+variable "course" {
+    default = ["Devops", "SRE", "Platform Engineering"]
+}
+
+variable "env" {}
+
+output "env" {
+    value = var.env
+  
+}
