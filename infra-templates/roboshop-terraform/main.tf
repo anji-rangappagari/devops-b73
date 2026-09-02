@@ -1,6 +1,5 @@
 module "roboshop-app" {
   source    = "./tf-modules-app"
-  component = "frontend"
+  component = each.key
   env       = var.env
-  name      = "frontend"
 }

@@ -82,7 +82,7 @@ resource "aws_security_group" "sg" {
   }
 }
 # EC2
-resource "aws_instance" "web" {
+resource "aws_instance" "instaance" {
   ami                    = data.aws_ami.rhel9_devops.id
   instance_type          = "t2.small"
   vpc_security_group_ids = [aws_security_group.sg.id]
@@ -94,7 +94,7 @@ resource "aws_instance" "web" {
 # DNS Record
 
 
-resource "aws_route53_record" "www" {
+resource "aws_route53_record" "dns" {
   zone_id = "Z073797429P7BFE4RYO6N"
   name    = "${var.component}-dev.oneseven.space"
   type    = "A"
