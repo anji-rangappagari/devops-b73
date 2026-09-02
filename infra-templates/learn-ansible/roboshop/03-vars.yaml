@@ -1,20 +1,11 @@
-# - name: Decalre a variable
+# - name: Declare variable
 #   hosts: all
-#   vars:
+#   vars: 
 #     URL: example.com
 #   tasks:
-#     - name: Print the URL variable
-#       ansible.builtin.debug:
-#         msg: URL - {{ URL }}
+#    - name: Print the URL variable
+#      ansible.builtin.debug:
+#        msg: URL - {{ URL }}
+  
 
-# write output and filter last value in the output
-- name: Register variabl
-  hosts: localhost
-  connection: local
-  tasks:
-    - name: Shell command
-      ansible.builtin.shell: uptime
-      register: output
-    - name: Print O/P
-      ansible.builtin.debug:
-        msg: "{{ output.stdout | split(' ') | last }}"
+#  register is used for the 
