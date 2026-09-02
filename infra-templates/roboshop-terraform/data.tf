@@ -1,0 +1,14 @@
+data "aws_ami" "ami" {
+  most_recent = true
+  owners      = ["973714476881"]
+
+  filter {
+    name   = "name"
+    values = ["Redhat-9-DevOps-Practice"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
