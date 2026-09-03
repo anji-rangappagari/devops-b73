@@ -13,5 +13,8 @@ variable "params" {
     { name = "roboshop/dev/frontend/user_url", value = "http://user-dev.oneseven.space:8080/", type = "String" },
     { name = "roboshop/dev/frontend/payment_url", value = "http://payment-dev.oneseven.space:8080/", type = "String" },
     { name = "roboshop/dev/frontend/shipping_url", value = "http://shipping-dev.oneseven.space:8080/", type = "String" },
+    { name = "roboshop/dev/crt/redis_host", value = "http://redis-dev.oneseven.space", type = "String" },
+    { name = "roboshop/dev/cart/catalogue_host", value = "http://catalogue-dev.oneseven.space", type = "String" },
+    { name = "roboshop/dev/cart/catalogue_port", value = "8080/", type = "String" },
   ]
 }

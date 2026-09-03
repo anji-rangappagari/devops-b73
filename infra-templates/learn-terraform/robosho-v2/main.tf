@@ -10,15 +10,15 @@ module "instances" {
 variable "instace_count" {
   default = {
     frontend  = {}
-    mongodb   = {}
-    catalogue = {}
-    user      = {}
-    redis     = {}
-    cart      = {}
-    mysql     = {}
-    shipping  = {}
-    payment   = {}
-    rabbitmq  = {}
-    dispatch  = {}
+    # mongodb   = {}
+    # catalogue = {}
+    # user      = {}
+    # redis     = {}
+    # cart      = {}
+    # mysql     = {}
+    # shipping  = {}
+    # payment   = {}
+    # rabbitmq  = {}
+    # dispatch  = {}
   }
 }
